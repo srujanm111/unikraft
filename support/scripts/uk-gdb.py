@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import gdb
-import pickle
+import json
 import os, sys
 import tempfile, shutil
 
@@ -69,22 +69,26 @@ def get_trace_buffer():
 def save_traces(out):
     elf = gdb.current_progspace().filename
 
-    pickler = pickle.Pickler(out)
-
     # keyvals need to go first, because they have format_version
     # key. Even if the format is changed we must guarantee that at
     # least keyvals are always stored first. However, ideally, next
     # versions should just have modifications at the very end to keep
     # compatibility with previously collected data.
-    pickler.dump(parse.get_keyvals(elf))
-    pickler.dump(elf)
-    pickler.dump(PTR_SIZE)
+   
     # We are saving raw trace buffer here. Another option is to pickle
     # already parsed samples. But in the chosen case it is a lot
     # easier to debug the parser, because python in gdb is not very
     # convenient for development.
-    pickler.dump(parse.get_tp_sections(elf))
-    pickler.dump(get_trace_buffer())
+
+    json_data = { 
+        'keyvals' = parse.get_keyvals(elf),
+        'elf' = elf,
+        'PTR_SIZE' = PTR_SIZE,
+        'tp_defs' = parse.get_tp_sections(elf),
+        'trace_buff' = get_trace_buffer()
+    }
+
+    json.dump(json_data, out)
 
 class uk(gdb.Command):
     def __init__(self):

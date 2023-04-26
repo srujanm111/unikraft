@@ -32,7 +32,7 @@
 
 import click
 import os, sys
-import pickle
+import json
 import subprocess
 from tabulate import tabulate
 
@@ -45,13 +45,13 @@ def cli():
 def parse_tf(trace_file):
     try:
         with open(trace_file, 'rb') as tf:
-            unpickler = pickle.Unpickler(tf)
+            json_data = json.load(tf)
 
-            keyvals = unpickler.load()
-            elf = unpickler.load()
-            ptr_size = unpickler.load()
-            tp_defs = unpickler.load()
-            trace_buff = unpickler.load()
+            keyvals = json_data['keyvals']
+            elf = json_data['elf']
+            ptr_size = json_data['PTR_SIZE']
+            tp_defs = json_data['tp_defs']
+            trace_buff = ['trace_buff']
     except EOFError:
         print("Unexpected end of trace file", file=sys.stderr)
         quit(-1)
