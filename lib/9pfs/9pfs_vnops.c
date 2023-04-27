@@ -826,8 +826,25 @@ static int uk_9pfs_setattr(struct vnode *vp, struct vattr *attr)
 		if (attr->va_mask & AT_MTIME)
 			stat.mtime = attr->va_mtime.tv_sec;
 
-		if (attr->va_mask & AT_MODE)
+		if (attr->va_mask & AT_MODE) {
 			stat.mode = attr->va_mode;
+
+			if (vp->v_type == VDIR) {
+				stat.mode |= UK_9P_DMDIR;
+				stat.length = (uint64_t) -1;
+			} else if (vp->v_type == VCHR) {
+				stat.mode |= UK_9P_DMDEVICE;
+			} else if (vp->v_type == VLNK) {
+				stat.mode |= UK_9P_DMSYMLINK;
+			} else if (vp->v_type == VSOCK) {
+				stat.mode = UK_9P_DMSOCKET;
+			} else if (vp->v_type == VFIFO) {
+				stat.mode = UK_9P_DMNAMEDPIPE;
+			}
+		}
+
+		if (attr->va_mask & AT_SIZE)
+			stat.length == attr->va_size;
 
 		rc = uk_9p_wstat(dev, fid, &stat);
 
