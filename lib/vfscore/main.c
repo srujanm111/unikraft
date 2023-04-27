@@ -538,8 +538,6 @@ UK_SYSCALL_R_DEFINE(ssize_t, read, int, fd, void *, buf, size_t, count)
 {
 	ssize_t bytes;
 
-	UK_ASSERT(buf);
-
 	struct iovec iov = {
 			.iov_base	= buf,
 			.iov_len	= count,
