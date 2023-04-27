@@ -544,6 +544,36 @@ UK_SYSCALL_R_DEFINE(ssize_t, read, int, fd, void *, buf, size_t, count)
 	};
 
 	trace_vfs_read(fd, buf, count);
+	
+	/* If the buffer is null and count is not 0, then
+	 * handle whether fd is at the end of file or not. */
+	if (buf == NULL && count != 0) {
+		struct vfscore_file *fp;
+		struct stat st;
+		ssize_t error;
+
+		error = fget(fd, &fp);
+		if (error == 0) {
+			error = sys_fstat(fp, &st);
+			if (error == 0) {
+				// handle eof cases
+				bool is_eof = fp->f_offset == st.st_size;
+				fdrop(fp);
+				if (is_eof) {
+					trace_vfs_read_ret(0);
+					return 0;
+				} else {
+					trace_vfs_read_err(EFAULT);
+					return -EFAULT;
+				}
+			}
+		}
+		
+		if (error > 0) {
+			trace_vfs_read_err(bytes);
+			return -error;
+		}
+	}
 
 	bytes = uk_syscall_r_readv((long) fd, (long) &iov, 1);
 	if (bytes < 0)
