@@ -110,7 +110,7 @@ void *memmove_isr(void *dst, const void *src, size_t len)
 	uint8_t *d = dst;
 	const uint8_t *s = src;
 
-	if ((intptr_t) src > (intptr_t) dst) {
+	if ((uintptr_t) src > (uintptr_t) dest) {
 		for (; len > 0; --len)
 			*(d++) = *(s++);
 	} else {
