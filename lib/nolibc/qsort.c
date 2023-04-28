@@ -88,8 +88,8 @@ loop:
 	SWAPINIT(a, es);
 	swap_cnt = 0;
 	if (n < 7) {
-		for (pm = (char *)a + es; pm < (char *) a + n * es; pm += es)
-			for (pl = pm; pl > (char *) a && cmp(pl - es, pl) > 0;
+		for (pm = (char *)a + es; (uintptr_t) pm < (uintptr_t) a + n * es; pm += es)
+			for (pl = pm; (uintptr_t) pl > (uintptr_t) a && cmp(pl - es, pl) > 0;
 			     pl -= es)
 				swap(pl, pl - es);
 		return;
@@ -111,7 +111,7 @@ loop:
 
 	pc = pd = (char *)a + (n - 1) * es;
 	for (;;) {
-		while (pb <= pc && (r = cmp(pb, a)) <= 0) {
+		while ((uintptr_t) pb <= (uintptr_t) pc && (r = cmp(pb, a)) <= 0) {
 			if (r == 0) {
 				swap_cnt = 1;
 				swap(pa, pb);
@@ -119,7 +119,7 @@ loop:
 			}
 			pb += es;
 		}
-		while (pb <= pc && (r = cmp(pc, a)) >= 0) {
+		while ((uintptr_t) pb <= (uintptr_t) pc && (r = cmp(pc, a)) >= 0) {
 			if (r == 0) {
 				swap_cnt = 1;
 				swap(pc, pd);
@@ -127,7 +127,7 @@ loop:
 			}
 			pc -= es;
 		}
-		if (pb > pc)
+		if ((uintptr_t) pb > (uintptr_t) pc)
 			break;
 		swap(pb, pc);
 		swap_cnt = 1;
@@ -135,8 +135,8 @@ loop:
 		pc -= es;
 	}
 	if (swap_cnt == 0) {  /* Switch to insertion sort */
-		for (pm = (char *) a + es; pm < (char *) a + n * es; pm += es)
-			for (pl = pm; pl > (char *) a && cmp(pl - es, pl) > 0;
+		for (pm = (char *) a + es; (uintptr_t) pm < (char *) a + n * es; pm += es)
+			for (pl = pm; (uintptr_t) pl > (char *) a && cmp(pl - es, pl) > 0;
 			     pl -= es)
 				swap(pl, pl - es);
 		return;

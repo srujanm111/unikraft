@@ -583,7 +583,7 @@ ok:
 			 * and treat it as [sign] '0'.
 			 */
 			if (flags & NDIGITS) {
-				if (p > buf) {
+				if ((uintptr_t) p > (uintptr_t) buf) {
 					inp--;
 					inr++;
 				}
