@@ -83,18 +83,6 @@ static void PIC_remap(int offset1, int offset2)
 
 void intctrl_init(void)
 {
-
-//Temp fix
-	__u32 eax, ebx, ecx, edx;
-	cpuid(1, 0, &eax, &ebx, &ecx, &edx);
-#define CPUID_FEAT_EDX_APIC  (1 << 9)
-#define IA32_APIC_BASE_MSR 0x1B
-#define IA32_APIC_BASE_MSR_ENABLE 0x800
-	if (edx & CPUID_FEAT_EDX_APIC) {
-					uint64_t base = rdmsrl(IA32_APIC_BASE_MSR);
-					wrmsrl(IA32_APIC_BASE_MSR, (base & 0xfffff0000));
-	}
-
 	PIC_remap(32, 40);
 }
 
